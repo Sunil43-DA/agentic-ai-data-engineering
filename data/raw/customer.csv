@@ -1,0 +1,8 @@
+customer_id,name,email,age,country,signup_date
+1001,John Smith,john@example.com,28,UK,2026-01-15
+1002,Sarah Jones,sarah@example.com,34,UK,2026-01-20
+1003,David Brown,,42,USA,2026-02-01
+1004,Emily Davis,emily@example.com,,UK,2026-02-05
+1005,Michael Wilson,michael@example.com,29,USA,2026-02-10
+1005,Michael Wilson,michael@example.com,29,USA,2026-02-10
+1006,Robert Taylor,robert@example.com,-5,UK,2026-02-15
