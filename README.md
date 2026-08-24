@@ -1,212 +1,66 @@
 # 🤖 AI Data Engineering Agent
 
-### Agentic Data Quality, Cleaning & Validation Pipeline
+### Agentic Data Quality, Cleaning, Validation & Database Pipeline
+
+[![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Agent%20Workflow-orange)](https://www.langchain.com/langgraph)
+[![Groq](https://img.shields.io/badge/Groq-LLM-purple)](https://groq.com/)
+[![Pandas](https://img.shields.io/badge/Pandas-Data%20Engineering-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
 An AI-powered data engineering agent that combines **Python, Pandas, LangGraph, Groq LLM reasoning and SQLite** to automatically analyse, assess, clean, verify and load customer data.
 
-The system uses an **LLM-driven decision layer** to determine what the pipeline should do next, while keeping the actual data engineering operations deterministic, reproducible and auditable.
+The project demonstrates how **agentic AI can be integrated into a practical data engineering workflow**, where the LLM is responsible for reasoning and decision-making while deterministic Python tools perform the actual data processing and validation.
 
 ---
 
-## 🚀 What This Project Does
+# 📌 Table of Contents
 
-The agent accepts a customer CSV file and automatically takes it through an end-to-end data engineering workflow:
-
-```text
-CSV Input
-    ↓
-Schema Analysis
-    ↓
-Data Quality Assessment
-    ↓
-LLM Reasoning
-    ↓
-Dynamic Decision
-    ├── Finish
-    │
-    └── Clean
-          ↓
-       Cleaning
-          ↓
-      Verification
-          ↓
-    ┌─────┴─────┐
-    │           │
-  Passed      Failed
-    │           │
-    ↓           ↓
- Success     Recovery
-    │           │
-    ↓         Retry
- Database      │
-    ↓           │
-SQL Validation ─┘
-    ↓
-   END
-
+- [Project Overview](#-project-overview)
+- [Why This Project](#-why-this-project)
+- [Project Objectives](#-project-objectives)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [End-to-End Workflow](#-end-to-end-workflow)
+- [Agent Nodes](#-agent-nodes)
+- [LLM Decision-Making](#-llm-decision-making)
+- [Data Quality Checks](#-data-quality-checks)
+- [Data Cleaning](#-data-cleaning)
+- [Verification](#-verification)
+- [Recovery and Retry](#-recovery-and-retry)
+- [Error Handling](#-error-handling)
+- [Database Integration](#-database-integration)
+- [SQL Validation](#-sql-validation)
+- [Logging and Audit Trail](#-logging-and-audit-trail)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Configuration](#-configuration)
+- [Installation](#-installation)
+- [Running the Agent](#-running-the-agent)
+- [Testing](#-testing)
+- [Example Execution](#-example-execution)
+- [Design Principles](#-design-principles)
+- [Security](#-security)
+- [Current Limitations](#-current-limitations)
+- [Future Enhancements](#-future-enhancements)
+- [Production Recommendations](#-production-recommendations)
+- [Learning Outcomes](#-learning-outcomes)
+- [Conclusion](#-conclusion)
+- [Author](#-author)
+- [Repository](#-repository)
 
 ---
 
-## PART 2 — Architecture + End-to-End
+# 🚀 Project Overview
 
-This is the section I particularly want you to have because it makes the GitHub README look much more professional.
-
-Add this after Part 1:
-
-```markdown
-## 🏗️ System Architecture
-
-The application follows a state-driven LangGraph architecture.
-
-Each node performs a specific responsibility and updates the shared `AgentState`.
+Traditional data engineering pipelines are often designed as fixed sequences of operations:
 
 ```text
-                              ┌─────────────────────┐
-                              │     CSV INPUT       │
-                              │   customer.csv      │
-                              └──────────┬──────────┘
-                                         │
-                                         ▼
-                              ┌─────────────────────┐
-                              │   SCHEMA ANALYSIS   │
-                              │                     │
-                              │ • Rows              │
-                              │ • Columns           │
-                              │ • Data Types        │
-                              │ • Missing Values    │
-                              │ • Duplicates        │
-                              └──────────┬──────────┘
-                                         │
-                                  Schema Router
-                                         │
-                         ┌───────────────┴───────────────┐
-                         │                               │
-                    Input Error                     Valid Schema
-                         │                               │
-                         ▼                               ▼
-                  ┌─────────────┐              ┌─────────────────┐
-                  │    ERROR    │              │ QUALITY CHECK   │
-                  │   HANDLER   │              │                 │
-                  └──────┬──────┘              │ • Missing       │
-                         │                     │ • Duplicates    │
-                         ▼                     │ • Invalid Age   │
-                        END                    │ • Invalid Email │
-                                               └────────┬────────┘
-                                                        │
-                                                 Quality Router
-                                                        │
-                                                        ▼
-                                             ┌────────────────────┐
-                                             │   LLM REASONING    │
-                                             │                    │
-                                             │ Analyse quality    │
-                                             │ Decide next step   │
-                                             └─────────┬──────────┘
-                                                       │
-                                                LLM Decision
-                                                       │
-                                      ┌────────────────┴────────────────┐
-                                      │                                 │
-                                   FINISH                              CLEAN
-                                      │                                 │
-                                      ▼                                 ▼
-                                     END                       ┌────────────────┐
-                                                               │    CLEANING    │
-                                                               │                │
-                                                               │ • Duplicates   │
-                                                               │ • Invalid Age  │
-                                                               │ • Missing Age  │
-                                                               │ • Missing Email│
-                                                               └───────┬────────┘
-                                                                       │
-                                                                       ▼
-                                                               ┌───────────────┐
-                                                               │ VERIFICATION  │
-                                                               │               │
-                                                               │ Re-check data │
-                                                               └───────┬───────┘
-                                                                       │
-                                                               Verification
-                                                                   Router
-                                                                       │
-                                                       ┌───────────────┴──────────────┐
-                                                       │                              │
-                                                    PASSED                         FAILED
-                                                       │                              │
-                                                       ▼                              ▼
-                                                ┌─────────────┐                ┌─────────────┐
-                                                │   SUCCESS   │                │  RECOVERY   │
-                                                └──────┬──────┘                └──────┬──────┘
-                                                       │                              │
-                                                       │                           Retry?
-                                                       │                              │
-                                                       │                         ┌────┴────┐
-                                                       │                         │         │
-                                                       │                       Retry      Stop
-                                                       │                         │         │
-                                                       │                         ▼         ▼
-                                                       │                    CLEANING      END
-                                                       │
-                                                       ▼
-                                                ┌─────────────────┐
-                                                │     DATABASE    │
-                                                │                 │
-                                                │ SQLite          │
-                                                │ customers table │
-                                                └────────┬────────┘
-                                                         │
-                                                         ▼
-                                                ┌─────────────────┐
-                                                │  SQL VALIDATION │
-                                                │                 │
-                                                │ • Row count     │
-                                                │ • Missing email │
-                                                │ • Invalid ages  │
-                                                │ • Duplicate IDs │
-                                                └────────┬────────┘
-                                                         │
-                                                         ▼
-                                                        END
-
-
----
-
-### PART 3 — Technical Details + Setup + Testing
-
-Then add this as the final major section:
-
-```markdown
-## 🧩 Project Structure
-
-```text
-ai-data-engineering-agent/
-│
-├── app/
-│   │
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── langgraph_agent.py
-│   │   ├── state.py
-│   │   ├── schema_agent.py
-│   │   ├── llm_test.py
-│   │   └── tool_call_test.py
-│   │
-│   ├── tools/
-│   │   ├── __init__.py
-│   │   ├── schema_tool.py
-│   │   ├── quality_tool.py
-│   │   ├── cleaning_tool.py
-│   │   └── database_tool.py
-│   │
-│   ├── config.py
-│   ├── logger.py
-│   └── __init__.py
-│
-├── data/
-│   └── raw/
-│
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
-
+Extract
+   ↓
+Transform
+   ↓
+Validate
+   ↓
+Load
