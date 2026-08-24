@@ -122,7 +122,7 @@ Instead, the architecture separates **reasoning** from **execution**.
               │ Verification           │
               │ Database               │
               └────────────────────────┘
-
+```
 This separation makes the workflow more **reproducible, testable and auditable**.
 
 The LLM provides the reasoning layer, LangGraph controls the workflow, and Python tools perform the actual data engineering operations.
