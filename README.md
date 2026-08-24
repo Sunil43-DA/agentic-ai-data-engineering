@@ -605,3 +605,14 @@ Creating a virtual environment keeps the project dependencies isolated from the 
 
 ```bash
 python -m venv .venv
+```
+---
+### Activate the Environment
+
+For Windows Command Prompt:
+
+```cmd
+.venv\Scripts\activate
+
+```
+---
