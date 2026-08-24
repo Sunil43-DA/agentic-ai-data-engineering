@@ -66,3 +66,59 @@ Decision
 SQL Validation ┘
     ↓
    END
+
+---
+
+# ✨ Key Features
+
+| Feature | Description |
+|---|---|
+| 🔍 Schema Analysis | Analyses dataset structure, columns, data types and missing values |
+| 🧪 Data Quality Assessment | Detects missing values, duplicates and invalid records |
+| 🧠 LLM Reasoning | Uses an LLM to determine the appropriate next processing step |
+| 🔀 Conditional Routing | Uses LangGraph to route the workflow based on processing results |
+| 🧹 Automated Cleaning | Cleans detected data-quality issues using deterministic Python logic |
+| ✅ Data Verification | Re-validates the dataset after cleaning |
+| ♻️ Recovery & Retry | Provides controlled recovery when verification fails |
+| 🚨 Error Handling | Handles missing, empty and malformed input files |
+| 📝 Audit Logging | Records important pipeline events and processing stages |
+| 🗄️ SQLite Database | Stores validated customer records |
+| 🔎 SQL Validation | Performs an additional validation after database loading |
+| 🔐 Secure Configuration | Keeps API credentials outside the source code |
+
+---
+
+# 🧠 Why Use an LLM?
+
+The LLM is **not responsible for directly modifying the data**.
+
+Instead, the architecture separates **reasoning** from **execution**.
+
+```text
+                ┌───────────────────┐
+                │       LLM         │
+                │                   │
+                │ Analyse Results   │
+                │ Reason            │
+                │ Make Decision     │
+                └─────────┬─────────┘
+                          │
+                    Decision Only
+                          │
+                          ▼
+                ┌───────────────────┐
+                │    LangGraph      │
+                │      Router       │
+                └─────────┬─────────┘
+                          │
+                          ▼
+              ┌────────────────────────┐
+              │ Deterministic Python   │
+              │ Data Engineering Tools │
+              │                        │
+              │ Schema                 │
+              │ Quality                │
+              │ Cleaning               │
+              │ Verification           │
+              │ Database               │
+              └────────────────────────┘
