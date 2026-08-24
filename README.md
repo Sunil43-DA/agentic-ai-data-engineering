@@ -47,14 +47,14 @@ SQL Validation ─┘
 
 ---
 
-# PART 2 — Architecture + End-to-End
+## PART 2 — Architecture + End-to-End
 
 This is the section I particularly want you to have because it makes the GitHub README look much more professional.
 
 Add this after Part 1:
 
 ```markdown
-# 🏗️ System Architecture
+## 🏗️ System Architecture
 
 The application follows a state-driven LangGraph architecture.
 
@@ -171,12 +171,12 @@ Each node performs a specific responsibility and updates the shared `AgentState`
 
 ---
 
-# PART 3 — Technical Details + Setup + Testing
+### PART 3 — Technical Details + Setup + Testing
 
 Then add this as the final major section:
 
 ```markdown
-# 🧩 Project Structure
+## 🧩 Project Structure
 
 ```text
 ai-data-engineering-agent/
