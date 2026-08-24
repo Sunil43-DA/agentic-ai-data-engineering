@@ -547,5 +547,40 @@ Verified Dataset
 
 ---
 ```
+# 📁 Project Structure
 
-After that, the next README section should be **📁 Project Structure**, followed by **⚙️ Installation & Setup**, **🔐 Environment Configuration**, **▶️ Running the Agent**, **🧪 Testing & Failure Scenarios**, **📊 Example Execution**, **📝 Logging**, **🔒 Security**, **⚠️ Current Limitations**, **🚀 Future Enhancements**, **🏭 Production Recommendations**, and **🏁 Conclusion**.
+The project follows a modular architecture that separates workflow orchestration, data engineering tools, configuration, logging and data storage.
+
+```text
+ai-data-engineering/
+│
+├── app/
+│   │
+│   ├── agents/
+│   │   ├── __init__.py
+│   │   ├── langgraph_agent.py
+│   │   ├── state.py
+│   │   ├── schema_agent.py
+│   │   ├── llm_test.py
+│   │   └── tool_call_test.py
+│   │
+│   ├── tools/
+│   │   ├── __init__.py
+│   │   ├── schema_tool.py
+│   │   ├── quality_tool.py
+│   │   ├── cleaning_tool.py
+│   │   └── database_tool.py
+│   │
+│   ├── config.py
+│   ├── logger.py
+│   └── __init__.py
+│
+├── data/
+│   └── raw/
+│       └── customer.csv
+│
+├── .env.example
+├── .gitignore
+├── README.md
+└── requirements.txt
+
