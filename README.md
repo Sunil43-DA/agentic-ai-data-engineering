@@ -66,7 +66,7 @@ Decision
 SQL Validation ┘
     ↓
    END
-
+```
 ---
 
 # ✨ Key Features
