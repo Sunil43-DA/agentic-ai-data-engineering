@@ -122,3 +122,76 @@ Instead, the architecture separates **reasoning** from **execution**.
               │ Verification           │
               │ Database               │
               └────────────────────────┘
+
+This separation makes the workflow more **reproducible, testable and auditable**.
+
+The LLM provides the reasoning layer, LangGraph controls the workflow, and Python tools perform the actual data engineering operations.
+
+---
+
+# 🛠️ Technology Stack
+
+The project combines modern Python data engineering, agentic AI and database technologies.
+
+### 🐍 Programming & Data Processing
+
+- **Python** — Core application language
+- **Pandas** — Data profiling, validation and transformation
+- **SQL** — Database validation and data-quality checks
+- **SQLite** — Local relational database
+
+### 🧠 Agentic AI
+
+- **LangGraph** — Stateful workflow orchestration and conditional routing
+- **Groq** — LLM inference
+- **OpenAI-compatible Python Client** — Communication with the Groq API
+
+### ⚙️ Configuration & Reliability
+
+- **python-dotenv** — Environment variable management
+- **Python Logging** — Pipeline audit logging
+- **Retry & Recovery Logic** — Controlled failure handling
+- **Error Handling** — Safe handling of invalid inputs and processing failures
+
+### 🔧 Development Tools
+
+- **Git** — Version control
+- **GitHub** — Source code management
+- **VS Code** — Development environment
+- **Virtual Environment** — Isolated Python dependencies
+
+---
+
+# 🏗️ System Architecture
+
+The agent is implemented as a **state-driven LangGraph workflow**. Each node performs a focused data engineering responsibility, while the shared `AgentState` carries information between stages.
+
+```mermaid
+flowchart TD
+
+    A["📄 CSV Input<br/>customer.csv"] --> B["🔍 Schema Analysis"]
+
+    B -->|Valid| C["🧪 Data Quality Assessment"]
+    B -->|Input Error| E["🚨 Error Handler"]
+
+    C --> D["🧠 LLM Reasoning"]
+
+    D -->|clean| F["🧹 Data Cleaning"]
+    D -->|finish| Z["🏁 End"]
+
+    F --> G["✅ Data Verification"]
+
+    G -->|Passed| H["🎉 Success"]
+    G -->|Failed| I["♻️ Recovery"]
+
+    I -->|Retry Available| F
+    I -->|Retry Limit Reached| E
+
+    H --> J["🗄️ SQLite Database"]
+
+    J --> K["🔎 SQL Validation"]
+
+    K -->|Valid| Z
+    K -->|Invalid| E
+
+    E --> Z
