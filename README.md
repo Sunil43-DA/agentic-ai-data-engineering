@@ -546,7 +546,6 @@ Verified Dataset
 ```
 
 ---
-```
 # 📁 Project Structure
 
 The project follows a modular architecture that separates workflow orchestration, data engineering tools, configuration, logging and data storage.
