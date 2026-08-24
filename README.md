@@ -594,3 +594,13 @@ Follow the steps below to run the AI Data Engineering Agent locally.
 ```bash
 git clone https://github.com/Sunil43-DA/agentic-ai-data-engineering.git
 cd agentic-ai-data-engineering
+---
+
+## 2️⃣ Create a Virtual Environment
+
+Creating a virtual environment keeps the project dependencies isolated from the system Python installation.
+
+### Windows
+
+```bash
+python -m venv .venv
