@@ -1,104 +1,198 @@
-# AI Data Engineering Agent
+# 🤖 AI Data Engineering Agent
 
-## Overview
+### Agentic Data Quality, Cleaning & Validation Pipeline
 
-This project is an AI-powered data engineering agent designed to automatically analyse, validate, clean, verify and store customer data.
+An AI-powered data engineering agent that combines **Python, Pandas, LangGraph, Groq LLM reasoning and SQLite** to automatically analyse, assess, clean, verify and load customer data.
 
-The system combines traditional data engineering techniques with Large Language Model (LLM) reasoning and LangGraph-based workflow orchestration.
-
-The agent can identify data-quality problems, decide whether cleaning is required, execute cleaning operations, verify the cleaned dataset, recover from failures, retry processing when necessary, maintain an audit log and load the validated data into a SQLite database.
+The system uses an **LLM-driven decision layer** to determine what the pipeline should do next, while keeping the actual data engineering operations deterministic, reproducible and auditable.
 
 ---
 
-## Project Objectives
+## 🚀 What This Project Does
 
-The main objectives of the project are:
+The agent accepts a customer CSV file and automatically takes it through an end-to-end data engineering workflow:
 
-- Analyse the structure of incoming CSV data.
-- Detect common data-quality problems.
-- Use an LLM to determine the appropriate next processing step.
-- Automatically clean poor-quality data.
-- Verify the cleaned dataset.
-- Handle input and processing errors.
-- Support retry and recovery logic.
-- Maintain an audit trail.
-- Store validated data in a database.
-- Perform SQL-based validation after database loading.
-
----
-
-## Architecture
-
-The overall workflow is:
-
+```text
 CSV Input
-↓
+    ↓
 Schema Analysis
-↓
+    ↓
 Data Quality Assessment
-↓
+    ↓
 LLM Reasoning
-↓
-Conditional Routing
-↓
-Data Cleaning
-↓
-Verification
-↓
-Recovery / Retry if Required
-↓
-Success
-↓
-SQLite Database
-↓
-SQL Validation
-↓
-End
+    ↓
+Dynamic Decision
+    ├── Finish
+    │
+    └── Clean
+          ↓
+       Cleaning
+          ↓
+      Verification
+          ↓
+    ┌─────┴─────┐
+    │           │
+  Passed      Failed
+    │           │
+    ↓           ↓
+ Success     Recovery
+    │           │
+    ↓         Retry
+ Database      │
+    ↓           │
+SQL Validation ─┘
+    ↓
+   END
+
 
 ---
 
-## Technologies Used
+# PART 2 — Architecture + End-to-End
 
-### Programming
+This is the section I particularly want you to have because it makes the GitHub README look much more professional.
 
-- Python
-- Pandas
-- SQLite
+Add this after Part 1:
 
-### AI / Agent Framework
+```markdown
+# 🏗️ System Architecture
 
-- LangGraph
-- Groq API
-- OpenAI-compatible Python client
+The application follows a state-driven LangGraph architecture.
 
-### Data Engineering
+Each node performs a specific responsibility and updates the shared `AgentState`.
 
-- CSV processing
-- Data-quality validation
-- Data cleaning
-- SQL validation
-- Database loading
+```text
+                              ┌─────────────────────┐
+                              │     CSV INPUT       │
+                              │   customer.csv      │
+                              └──────────┬──────────┘
+                                         │
+                                         ▼
+                              ┌─────────────────────┐
+                              │   SCHEMA ANALYSIS   │
+                              │                     │
+                              │ • Rows              │
+                              │ • Columns           │
+                              │ • Data Types        │
+                              │ • Missing Values    │
+                              │ • Duplicates        │
+                              └──────────┬──────────┘
+                                         │
+                                  Schema Router
+                                         │
+                         ┌───────────────┴───────────────┐
+                         │                               │
+                    Input Error                     Valid Schema
+                         │                               │
+                         ▼                               ▼
+                  ┌─────────────┐              ┌─────────────────┐
+                  │    ERROR    │              │ QUALITY CHECK   │
+                  │   HANDLER   │              │                 │
+                  └──────┬──────┘              │ • Missing       │
+                         │                     │ • Duplicates    │
+                         ▼                     │ • Invalid Age   │
+                        END                    │ • Invalid Email │
+                                               └────────┬────────┘
+                                                        │
+                                                 Quality Router
+                                                        │
+                                                        ▼
+                                             ┌────────────────────┐
+                                             │   LLM REASONING    │
+                                             │                    │
+                                             │ Analyse quality    │
+                                             │ Decide next step   │
+                                             └─────────┬──────────┘
+                                                       │
+                                                LLM Decision
+                                                       │
+                                      ┌────────────────┴────────────────┐
+                                      │                                 │
+                                   FINISH                              CLEAN
+                                      │                                 │
+                                      ▼                                 ▼
+                                     END                       ┌────────────────┐
+                                                               │    CLEANING    │
+                                                               │                │
+                                                               │ • Duplicates   │
+                                                               │ • Invalid Age  │
+                                                               │ • Missing Age  │
+                                                               │ • Missing Email│
+                                                               └───────┬────────┘
+                                                                       │
+                                                                       ▼
+                                                               ┌───────────────┐
+                                                               │ VERIFICATION  │
+                                                               │               │
+                                                               │ Re-check data │
+                                                               └───────┬───────┘
+                                                                       │
+                                                               Verification
+                                                                   Router
+                                                                       │
+                                                       ┌───────────────┴──────────────┐
+                                                       │                              │
+                                                    PASSED                         FAILED
+                                                       │                              │
+                                                       ▼                              ▼
+                                                ┌─────────────┐                ┌─────────────┐
+                                                │   SUCCESS   │                │  RECOVERY   │
+                                                └──────┬──────┘                └──────┬──────┘
+                                                       │                              │
+                                                       │                           Retry?
+                                                       │                              │
+                                                       │                         ┌────┴────┐
+                                                       │                         │         │
+                                                       │                       Retry      Stop
+                                                       │                         │         │
+                                                       │                         ▼         ▼
+                                                       │                    CLEANING      END
+                                                       │
+                                                       ▼
+                                                ┌─────────────────┐
+                                                │     DATABASE    │
+                                                │                 │
+                                                │ SQLite          │
+                                                │ customers table │
+                                                └────────┬────────┘
+                                                         │
+                                                         ▼
+                                                ┌─────────────────┐
+                                                │  SQL VALIDATION │
+                                                │                 │
+                                                │ • Row count     │
+                                                │ • Missing email │
+                                                │ • Invalid ages  │
+                                                │ • Duplicate IDs │
+                                                └────────┬────────┘
+                                                         │
+                                                         ▼
+                                                        END
 
-### Configuration and Reliability
-
-- python-dotenv
-- Python logging
-- Retry and recovery handling
-- Error handling
 
 ---
 
-## Project Structure
+# PART 3 — Technical Details + Setup + Testing
+
+Then add this as the final major section:
+
+```markdown
+# 🧩 Project Structure
 
 ```text
 ai-data-engineering-agent/
 │
 ├── app/
+│   │
 │   ├── agents/
+│   │   ├── __init__.py
 │   │   ├── langgraph_agent.py
-│   │   └── state.py
+│   │   ├── state.py
+│   │   ├── schema_agent.py
+│   │   ├── llm_test.py
+│   │   └── tool_call_test.py
 │   │
 │   ├── tools/
+│   │   ├── __init__.py
 │   │   ├── schema_tool.py
 │   │   ├── quality_tool.py
 │   │   ├── cleaning_tool.py
@@ -106,16 +200,13 @@ ai-data-engineering-agent/
 │   │
 │   ├── config.py
 │   ├── logger.py
-│   └── ...
+│   └── __init__.py
 │
 ├── data/
-│   ├── raw/
-│   ├── clean/
-│   └── database/
+│   └── raw/
 │
-├── logs/
-│   └── agent.log
-│
-├── .env
+├── .env.example
 ├── .gitignore
+├── requirements.txt
 └── README.md
+
