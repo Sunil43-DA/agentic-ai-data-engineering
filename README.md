@@ -196,3 +196,362 @@ flowchart TD
     K -->|Invalid| E
 
     E --> Z
+
+```
+
+Then paste:
+
+```markdown
+---
+
+# 🔄 End-to-End Workflow
+
+The pipeline processes the customer dataset through a sequence of validation, reasoning, transformation and storage stages.
+
+## 1️⃣ Input Dataset
+
+The workflow starts with the raw customer CSV:
+
+```text
+data/raw/customer.csv
+```
+
+The dataset contains fields such as:
+
+```text
+customer_id
+name
+email
+age
+country
+signup_date
+```
+
+The raw input is kept separate from generated outputs so that the original dataset remains available for auditing and reprocessing.
+
+---
+
+## 2️⃣ Schema Analysis
+
+The **Schema Node** examines the structure of the incoming dataset.
+
+It identifies:
+
+- Number of rows
+- Number of columns
+- Column names
+- Data types
+- Missing values
+- Duplicate rows
+
+The node also handles input-level failures such as:
+
+- Missing files
+- Empty datasets
+- Malformed CSV files
+
+Example schema result:
+
+```text
+Rows: 7
+Columns: 6
+
+Columns:
+customer_id
+name
+email
+age
+country
+signup_date
+```
+
+The result is stored in the shared `AgentState`.
+
+---
+
+## 3️⃣ Schema Routing
+
+After schema analysis, LangGraph evaluates the schema status.
+
+```text
+Schema Analysis
+      │
+      ├── schema_complete ──► Quality Check
+      │
+      └── input_error ──────► Error Handler
+```
+
+This prevents invalid input from progressing through the remaining pipeline.
+
+---
+
+## 4️⃣ Data Quality Assessment
+
+The **Quality Node** performs deterministic data-quality checks.
+
+The current implementation checks:
+
+- Missing values
+- Duplicate rows
+- Duplicate customer IDs
+- Invalid ages
+- Invalid email addresses
+
+Example result:
+
+```text
+Missing email:          1
+Missing age:            1
+Duplicate rows:         1
+Duplicate customer IDs: 1
+Invalid age:            1
+Invalid email:          1
+```
+
+These checks are performed using Python and Pandas rather than relying on the LLM.
+
+This keeps the quality assessment deterministic and reproducible.
+
+---
+
+## 5️⃣ LLM Decision
+
+The quality results are passed to the Groq-hosted LLM.
+
+The LLM analyses the detected issues and determines the appropriate next action.
+
+Example:
+
+```json
+{
+    "decision": "clean",
+    "reason": "The dataset contains missing values, duplicate entries and invalid fields that require cleaning."
+}
+```
+
+The supported decisions are:
+
+```text
+clean
+finish
+```
+
+The LLM provides the **reasoning layer**, but it does not directly modify the dataset.
+
+---
+
+## 6️⃣ Conditional Routing
+
+LangGraph uses the LLM decision to determine the next node.
+
+```text
+             LLM Decision
+                  │
+          ┌───────┴───────┐
+          │               │
+        clean           finish
+          │               │
+          ▼               ▼
+      Cleaning           END
+```
+
+For the sample customer dataset, the LLM identifies data-quality issues and selects:
+
+```text
+Decision: clean
+```
+
+The workflow therefore continues to the cleaning node.
+
+---
+
+## 7️⃣ Data Cleaning
+
+The **Cleaning Node** uses deterministic Python logic to address the detected data-quality issues.
+
+The current cleaning process handles:
+
+- Duplicate rows
+- Invalid ages
+- Missing ages
+- Missing emails
+
+The cleaned dataset is written to:
+
+```text
+data/clean/customer_cleaned.csv
+```
+
+Example result:
+
+```text
+Original rows:           7
+Final rows:              6
+Duplicate rows removed:  1
+Invalid ages handled:    1
+Missing ages handled:    2
+Missing emails handled:  1
+```
+
+---
+
+## 8️⃣ Data Verification
+
+The **Verification Node** runs the quality checks again against the cleaned dataset.
+
+Expected successful result:
+
+```text
+Missing values:          0
+Duplicate rows:          0
+Duplicate customer IDs:  0
+Invalid ages:            0
+Invalid emails:          0
+```
+
+This creates a validation boundary between data transformation and downstream storage.
+
+The data is only allowed to proceed when verification succeeds.
+
+---
+
+## 9️⃣ Recovery and Retry
+
+If verification fails, the workflow enters the recovery process.
+
+```text
+Verification
+      │
+      ├── Passed ──► Success
+      │
+      └── Failed
+             │
+             ▼
+         Recovery
+             │
+             ▼
+        Retry Decision
+             │
+             ▼
+          Cleaning
+```
+
+The maximum number of retries is controlled through:
+
+```env
+MAX_RETRIES=2
+```
+
+This prevents the agent from entering an infinite processing loop.
+
+---
+
+## 🔟 Success
+
+When verification passes, the pipeline records a successful processing state:
+
+```text
+Dataset successfully cleaned and verified.
+```
+
+The workflow can then continue to database loading.
+
+---
+
+## 1️⃣1️⃣ Database Loading
+
+The validated customer data is loaded into a SQLite database.
+
+Database:
+
+```text
+data/database/customer.db
+```
+
+Table:
+
+```text
+customers
+```
+
+Example result:
+
+```text
+Database: data/database/customer.db
+Table: customers
+Rows loaded: 6
+Status: success
+```
+
+The database stage provides a persistent storage layer for the validated dataset.
+
+---
+
+## 1️⃣2️⃣ SQL Validation
+
+After loading the data into SQLite, the database itself is validated.
+
+The SQL validation checks:
+
+- Total number of rows
+- Missing emails
+- Invalid ages
+- Duplicate customer IDs
+
+Example:
+
+```text
+Total rows:              6
+Missing emails:          0
+Invalid ages:            0
+Duplicate customer IDs:  0
+Status:                  valid
+```
+
+This provides an additional validation layer after database loading.
+
+---
+
+## 1️⃣3️⃣ Final Pipeline State
+
+When all stages complete successfully, the final state contains information from the complete workflow.
+
+Example:
+
+```text
+status: verified_clean
+retry_count: 0
+```
+
+The pipeline has therefore completed the following journey:
+
+```text
+Raw CSV
+   ↓
+Schema Analysis
+   ↓
+Quality Assessment
+   ↓
+LLM Reasoning
+   ↓
+Conditional Routing
+   ↓
+Data Cleaning
+   ↓
+Verification
+   ↓
+Success
+   ↓
+SQLite Database
+   ↓
+SQL Validation
+   ↓
+Verified Dataset
+```
+
+---
+```
+
+**Stop after this section.** Save and preview it first.
+
+After that, the next README section should be **📁 Project Structure**, followed by **⚙️ Installation & Setup**, **🔐 Environment Configuration**, **▶️ Running the Agent**, **🧪 Testing & Failure Scenarios**, **📊 Example Execution**, **📝 Logging**, **🔒 Security**, **⚠️ Current Limitations**, **🚀 Future Enhancements**, **🏭 Production Recommendations**, and **🏁 Conclusion**.
