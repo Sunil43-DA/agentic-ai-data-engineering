@@ -1,39 +1,68 @@
+# 🤖 AI Data Engineering Agent
+
+### Agentic Data Quality, Cleaning & Validation Pipeline
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white">
+<img src="https://img.shields.io/badge/LangGraph-Agentic%20Workflow-orange">
+<img src="https://img.shields.io/badge/Groq-LLM-purple">
+<img src="https://img.shields.io/badge/Pandas-Data%20Engineering-150458?logo=pandas&logoColor=white">
+<img src="https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white">
+<img src="https://img.shields.io/badge/AI-Data%20Engineering-success">
+
+</p>
+
 ---
 
-# 📁 Project Structure
+## 🚀 Overview
 
-The project follows a modular structure that separates workflow orchestration, data engineering tools, configuration and input data.
+> **An agentic data engineering pipeline that uses LLM reasoning to make workflow decisions while deterministic Python tools perform data processing, validation and database operations.**
+
+The **AI Data Engineering Agent** is an AI-powered data engineering workflow that automatically analyses, validates, cleans, verifies and stores customer data.
+
+The project combines traditional data engineering techniques with **Large Language Model (LLM) reasoning** and **LangGraph workflow orchestration**.
+
+The system is designed around a simple principle:
+
+> **Use AI for reasoning and deterministic engineering tools for execution.**
+
+The LLM analyses the results of data-quality checks and decides what the pipeline should do next. Python-based tools then perform the actual data processing, cleaning, verification and database operations.
+
+---
+
+# 🎯 What Does This Project Do?
+
+The agent takes a customer CSV file and processes it through an end-to-end workflow:
 
 ```text
-ai-data-engineering/
-│
-├── app/
-│   │
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── langgraph_agent.py
-│   │   ├── state.py
-│   │   ├── schema_agent.py
-│   │   ├── llm_test.py
-│   │   └── tool_call_test.py
-│   │
-│   ├── tools/
-│   │   ├── __init__.py
-│   │   ├── schema_tool.py
-│   │   ├── quality_tool.py
-│   │   ├── cleaning_tool.py
-│   │   └── database_tool.py
-│   │
-│   ├── config.py
-│   ├── logger.py
-│   └── __init__.py
-│
-├── data/
-│   └── raw/
-│       └── customer.csv
-│
-├── .env.example
-├── .gitignore
-├── LICENSE
-├── README.md
-└── requirements.txt
+CSV Input
+    ↓
+Schema Analysis
+    ↓
+Data Quality Assessment
+    ↓
+LLM Reasoning
+    ↓
+Decision
+    ├── Finish
+    │
+    └── Clean
+          ↓
+       Cleaning
+          ↓
+      Verification
+          ↓
+    ┌─────┴─────┐
+    │           │
+  Passed      Failed
+    │           │
+    ↓           ↓
+ Success     Recovery
+    │           │
+    ↓         Retry
+ Database      │
+    ↓           │
+SQL Validation ┘
+    ↓
+   END
