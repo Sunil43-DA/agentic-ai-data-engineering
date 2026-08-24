@@ -198,10 +198,6 @@ flowchart TD
     E --> Z
 
 ```
-
-Then paste:
-
-```markdown
 ---
 
 # 🔄 End-to-End Workflow
