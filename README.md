@@ -582,4 +582,14 @@ ai-data-engineering/
 ├── .gitignore
 ├── README.md
 └── requirements.txt
+---
 
+# ⚙️ Installation & Setup
+
+Follow the steps below to run the AI Data Engineering Agent locally.
+
+## 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/Sunil43-DA/agentic-ai-data-engineering.git
+cd agentic-ai-data-engineering
